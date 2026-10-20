@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<meta name="format-detection" content="telephone=no">
+<title>AESD 予測スコア</title>
+<style>
+/* 配色：白を基調に、くすみのある淡い色で区別する（緊張感を与えない） */
+:root{
+  color-scheme: light;
+  --ink:#2c363c;                         /* 本文：やわらかい墨色 */
+  --sub:#66727a;
+  --line:#e3e7ea;
+  --soft:#f6f8f9;
+  --ichinose:#437360; --ichinose-bg:#eef5f1;   /* セージ */
+  --nagase:#3f6f86;   --nagase-bg:#edf4f7;     /* ブルーグレー */
+  --yokochi:#655a88;  --yokochi-bg:#f3f1f8;    /* くすみラベンダー */
+  --tada:#8a5f2e;     --tada-bg:#fbf4ea;       /* アプリコット */
+  --pos:#a2535f;      --pos-bg:#fbf1f2;        /* 判定：くすみローズ */
+  --note:#7d6431;     --note-bg:#fbf6ea;       /* 保留・注意：ベージュ */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;background:#fff}
+body{background:#fff;color:var(--ink);
+  font-family:"BIZ UDPGothic","BIZ UDゴシック","Hiragino Sans","Hiragino Kaku Gothic ProN","Meiryo",system-ui,sans-serif;
+  line-height:1.5;font-size:15px}
+button{font:inherit;color:inherit}
+.c-ichinose{--c:var(--ichinose);--c-bg:var(--ichinose-bg)}
+.c-nagase{--c:var(--nagase);--c-bg:var(--nagase-bg)}
+.c-yokochi{--c:var(--yokochi);--c-bg:var(--yokochi-bg)}
+.c-tada{--c:var(--tada);--c-bg:var(--tada-bg)}
+
+/* 上部固定：タイトルとスコアの切り替え */
+.top{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line);
+  padding:10px 16px 10px;padding-top:max(10px,env(safe-area-inset-top))}
+.ttl{display:flex;align-items:center;gap:8px;max-width:760px;margin:0 auto}
+.ttl h1{font-size:15px;font-weight:700;line-height:1.25}
+.ttl h1 span{display:block;font-size:12px;font-weight:400;color:var(--sub)}
+.ver{margin-left:auto;flex:none;font-size:12px;color:var(--sub)}
+.clr{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;font-size:13px;color:var(--sub);padding:3px 12px;cursor:pointer}
+.clr:hover{background:var(--soft)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:760px;margin:8px auto 0}
+.tab{border:1px solid var(--line);background:#fff;border-radius:12px;padding:5px 2px 6px;text-align:center;cursor:pointer;min-width:0}
+.tab b{display:block;font-size:14px;line-height:1.3;color:var(--ink)}
+.tab small{display:block;font-size:11px;line-height:1.3;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tab .chip{display:inline-block;margin-top:3px;min-width:46px;font-size:12px;font-weight:700;line-height:1.5;border-radius:999px;padding:0 8px;background:var(--soft);color:var(--sub);font-variant-numeric:tabular-nums}
+.tab .chip.pos{background:var(--pos-bg);color:var(--pos)}
+.tab[aria-selected="true"]{background:var(--c-bg);border-color:var(--c)}
+.tab[aria-selected="true"] b{color:var(--c)}
+.tab[aria-selected="true"] .chip:not(.pos){background:#fff}
+.tab:focus-visible,.clr:focus-visible,.copy:focus-visible{outline:3px solid #b9d3e0;outline-offset:1px}
+
+main{max-width:760px;margin:0 auto;padding:12px 16px 0}
+.panel h2{font-size:18px;font-weight:700;color:var(--c);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.panel h2 small{font-size:12px;font-weight:400;color:var(--sub)}
+.meta{margin:6px 0 12px;background:var(--soft);border-radius:12px;padding:8px 12px;font-size:13px;display:grid;grid-template-columns:auto 1fr;gap:3px 10px}
+.meta dt{color:var(--sub);white-space:nowrap}
+.meta dd b{font-weight:700}
+
+/* チェック項目 */
+.item{position:relative;display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;min-height:54px;
+  -webkit-tap-highlight-color:transparent;transition:background-color .12s,border-color .12s}
+.item + .item, .item + .choice, .choice + .item{margin-top:8px}
+.item input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.box{flex:none;width:24px;height:24px;border:2px solid #b8c1c7;border-radius:6px;display:grid;place-items:center;background:#fff;transition:background-color .12s,border-color .12s}
+.box::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg);opacity:0}
+.radio .box{border-radius:50%}
+.radio .box::after{width:10px;height:10px;border:0;border-radius:50%;background:#fff;transform:none}
+.item.on{background:var(--c-bg);border-color:var(--c)}
+.item.on .box{background:var(--c);border-color:var(--c)}
+.item.on .box::after{opacity:1}
+.item input:focus-visible ~ .box{outline:3px solid #b9d3e0;outline-offset:2px}
+@media (hover:hover){.item:hover:not(.on){background:var(--soft)}}
+.txt{flex:1;min-width:0}
+.txt b{display:block;font-size:16px;font-weight:700;line-height:1.35}
+.txt small{display:block;font-size:12.5px;color:var(--sub);line-height:1.4;margin-top:1px}
+.pt{flex:none;font-size:14px;font-weight:700;color:var(--c);background:var(--c-bg);border-radius:999px;padding:1px 10px;font-variant-numeric:tabular-nums}
+.item.on .pt{background:#fff}
+.choice{border:1px solid var(--line);border-radius:14px;padding:10px 10px 10px}
+.choice legend{padding:0 6px;font-size:14px;font-weight:700;color:var(--c)}
+.choice .item{min-height:48px;padding:9px 12px}
+
+/* 合計と判定：項目のすぐ下に固定 */
+.result{position:sticky;bottom:0;z-index:5;margin-top:12px;background:#fff;border-top:1px solid var(--line);
+  padding:10px 0 max(10px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:14px}
+.sc{flex:none;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:84px;text-align:center}
+.sc b{font-size:40px;line-height:1;font-weight:700;color:var(--c)}
+.sc span{font-size:15px;color:var(--sub);font-weight:700;margin-left:2px}
+.judge{flex:1;min-width:0;border-radius:12px;padding:8px 12px;font-size:15px;font-weight:700;line-height:1.35;background:var(--soft);color:var(--sub)}
+.judge small{display:block;font-weight:400;font-size:12px;margin-top:2px;color:var(--sub)}
+.judge.pos{background:var(--pos-bg);color:var(--pos)}
+.judge.pending{background:var(--note-bg);color:var(--note)}
+
+details{margin-top:4px;font-size:13px;border-top:1px solid var(--line);padding-top:6px}
+summary{cursor:pointer;color:var(--c);font-weight:700;padding:6px 0}
+details ul{padding-left:1.2em;color:var(--ink);line-height:1.65}
+details li + li{margin-top:3px}
+.cite{margin-top:8px;color:var(--sub);font-size:12px;line-height:1.55}
+a{color:#3f6f86}
+
+.copyrow{max-width:760px;margin:14px auto 0;padding:0 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.copy{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:7px 16px;font-size:14px;font-weight:700;cursor:pointer}
+.copy:hover{background:#eef1f3}
+.copymsg{font-size:13px;color:var(--sub)}
+
+footer{max-width:760px;margin:12px auto 0;padding:12px 16px 32px;font-size:12px;color:var(--sub);line-height:1.65;border-top:1px solid var(--line)}
+footer h3{font-size:13px;color:var(--ink);margin:12px 0 4px}
+footer ul,footer ol{padding-left:1.3em}
+footer .must{color:var(--ink);font-size:13px;background:var(--soft);border-radius:12px;padding:9px 12px}
+.judge.idle{font-weight:400}
+@media (max-width:359px){.tab b{font-size:13px}.tab small{font-size:10px}.sc{min-width:70px}.sc b{font-size:34px}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="ttl">
+    <h1>AESD 早期予測スコア<span>けいれん重積型（二相性）急性脳症</span></h1>
+    <span class="ver">v0.1</span>
+    <button type="button" class="clr" id="clear">クリア</button>
+  </div>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="スコアの切り替え"></nav>
+</header>
+
+<main id="panels"></main>
+
+<div class="copyrow">
+  <button type="button" class="copy" id="copy">カルテ用にコピー</button>
+  <span class="copymsg" id="copymsg" role="status" aria-live="polite"></span>
+</div>
+
+<footer>
+  <p class="must">論文で提案された予測スコアを数えるための補助ツールです。AESD の診断基準ではなく、スコアだけで診断や治療を決めないでください。</p>
+  <h3>使うときの注意</h3>
+  <ul>
+    <li>未測定・未評価の項目は0点として数えます。そのぶんスコアは低めに出ます。</li>
+    <li>AESD では1・2病日の MRI が正常のことが多く、二相目のけいれん（焦点発作の群発。眼瞼の発作や眼球偏位だけのこともある）や意識障害の悪化に気づかれにくいことがあります。スコアにかかわらず経過を観察してください（一ノ瀬ら 2025）。</li>
+    <li>タブは、判定に使える時期の早い順（初回採血 → 発症6時間 → 覚醒まで → 12〜24時間）に並べています。</li>
+    <li>入力した内容は端末の中で計算するだけで、保存も送信もしません。</li>
+  </ul>
+  <h3>文献</h3>
+  <ol>
+    <li>Ichinose F, Nakamura T, Kira R, et al. Incidence and risk factors of acute encephalopathy with biphasic seizures in febrile status epilepticus. Brain Dev. 2022;44(1):36-43. <a href="https://pubmed.ncbi.nlm.nih.gov/34362595/" target="_blank" rel="noopener">PMID: 34362595</a></li>
+    <li>Nagase H, Nakagawa T, Aoki K, et al. Therapeutic indicators of acute encephalopathy in patients with complex febrile seizures. Pediatr Int. 2013;55(3):310-314. <a href="https://pubmed.ncbi.nlm.nih.gov/23279186/" target="_blank" rel="noopener">PMID: 23279186</a></li>
+    <li>Yokochi T, Takeuchi T, Mukai J, et al. Prediction of acute encephalopathy with biphasic seizures and late reduced diffusion in patients with febrile status epilepticus. Brain Dev. 2016;38(2):217-224. <a href="https://pubmed.ncbi.nlm.nih.gov/26242200/" target="_blank" rel="noopener">PMID: 26242200</a></li>
+    <li>Tada H, Takanashi J, Okuno H, et al. Predictive score for early diagnosis of acute encephalopathy with biphasic seizures and late reduced diffusion (AESD). J Neurol Sci. 2015;358(1-2):62-65. <a href="https://pubmed.ncbi.nlm.nih.gov/26333951/" target="_blank" rel="noopener">PMID: 26333951</a></li>
+    <li>一ノ瀬文男, 實藤雅文. 熱性けいれんだと思ったらけいれん重積型（二相性）急性脳症（AESD）. 小児内科. 2025;57(4):435-438.</li>
+  </ol>
+</footer>
+
+<script src="scores.js?v=2"></script>
+<script>
+(function () {
+  'use strict';
+  var A = window.AESD, S = A.SCORES;
+  var states = {}, touched = {}, active = S[0].id;
+  S.forEach(function (d) { states[d.id] = {}; });
+
+  var tabsEl = document.getElementById('tabs');
+  var panelsEl = document.getElementById('panels');
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; });
+  }
+  function ptLabel(p) { return p > 0 ? '+' + p : '0'; }
+
+  function checkHTML(d, it) {
+    return '<label class="item"><input type="checkbox" data-s="' + d.id + '" data-i="' + it.id + '">' +
+      '<span class="box" aria-hidden="true"></span>' +
+      '<span class="txt"><b>' + esc(it.label) + '</b>' + (it.note ? '<small>' + esc(it.note) + '</small>' : '') + '</span>' +
+      '<span class="pt">' + ptLabel(it.pt) + '</span></label>';
+  }
+  function choiceHTML(d, it) {
+    return '<fieldset class="choice"><legend>' + esc(it.label) + '</legend>' +
+      it.options.map(function (o, k) {
+        return '<label class="item radio"><input type="radio" name="' + d.id + '-' + it.id + '" value="' + k + '" data-s="' + d.id + '" data-i="' + it.id + '">' +
+          '<span class="box" aria-hidden="true"></span>' +
+          '<span class="txt"><b>' + esc(o.label) + '</b></span>' +
+          '<span class="pt">' + ptLabel(o.pt) + '</span></label>';
+      }).join('') + '</fieldset>';
+  }
+
+  // タブと画面を組み立てる
+  S.forEach(function (d) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tab c-' + d.id;
+    b.id = 'tab-' + d.id;
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-controls', 'p-' + d.id);
+    b.dataset.id = d.id;
+    b.innerHTML = '<b>' + esc(d.short) + '</b><small>' + esc(d.when) + '</small><span class="chip" id="chip-' + d.id + '">—</span>';
+    tabsEl.appendChild(b);
+
+    var sec = document.createElement('section');
+    sec.className = 'panel c-' + d.id;
+    sec.id = 'p-' + d.id;
+    sec.setAttribute('role', 'tabpanel');
+    sec.setAttribute('aria-labelledby', 'tab-' + d.id);
+    sec.innerHTML =
+      '<h2>' + esc(d.name) + '<small>' + esc(d.short) + ' et al., ' + d.year + '</small></h2>' +
+      '<dl class="meta">' +
+        '<dt>時期</dt><dd>' + esc(d.whenLong) + '</dd>' +
+        '<dt>対象</dt><dd>' + esc(d.scope) + '</dd>' +
+        '<dt>予測</dt><dd><b>' + esc(d.predicts) + '</b></dd>' +
+        '<dt>判定</dt><dd>' + esc(d.perf) + '</dd>' +
+      '</dl>' +
+      '<div class="items">' + d.items.map(function (it) { return it.type === 'choice' ? choiceHTML(d, it) : checkHTML(d, it); }).join('') + '</div>' +
+      '<div class="result" aria-live="polite">' +
+        '<div class="sc"><b id="total-' + d.id + '">0</b><span>/ ' + d.max + d.unit + '</span></div>' +
+        '<p class="judge" id="judge-' + d.id + '"></p>' +
+      '</div>' +
+      '<details><summary>原著の定義と注意</summary><ul>' +
+        d.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') +
+      '</ul><p class="cite">' + esc(d.cite) + ' <a href="https://pubmed.ncbi.nlm.nih.gov/' + d.pmid + '/" target="_blank" rel="noopener">PMID: ' + d.pmid + '</a></p></details>';
+    panelsEl.appendChild(sec);
+  });
+
+  function update(id) {
+    var d = A.byId(id);
+    var r = A.compute(d, states[id]);
+    var j = A.judge(d, r);
+    document.getElementById('total-' + id).textContent = r.total;
+    var je = document.getElementById('judge-' + id);
+    if (!touched[id]) j = { cls: 'idle', main: '該当項目を選んでください', sub: '未測定・未評価の項目は0点' };
+    je.className = 'judge ' + j.cls;
+    je.innerHTML = esc(j.main) + '<small>' + esc(j.sub) + '</small>';
+    var chip = document.getElementById('chip-' + id);
+    chip.textContent = touched[id] ? r.total + '/' + d.max : '—';
+    chip.className = 'chip' + (touched[id] && r.status === 'pos' ? ' pos' : '');
+  }
+
+  function show(id, focus) {
+    active = id;
+    S.forEach(function (d) {
+      var on = d.id === id;
+      var t = document.getElementById('tab-' + d.id);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById('p-' + d.id).hidden = !on;
+    });
+    if (focus) document.getElementById('tab-' + id).focus();
+    window.scrollTo(0, 0);
+  }
+
+  tabsEl.addEventListener('click', function (e) {
+    var t = e.target.closest('.tab');
+    if (t) show(t.dataset.id);
+  });
+  tabsEl.addEventListener('keydown', function (e) {
+    var i = S.findIndex(function (d) { return d.id === active; });
+    if (e.key === 'ArrowRight') i = (i + 1) % S.length;
+    else if (e.key === 'ArrowLeft') i = (i + S.length - 1) % S.length;
+    else return;
+    e.preventDefault();
+    show(S[i].id, true);
+  });
+
+  panelsEl.addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t.dataset || !t.dataset.s) return;
+    var sid = t.dataset.s, iid = t.dataset.i;
+    states[sid][iid] = t.type === 'radio' ? Number(t.value) : t.checked;
+    touched[sid] = true;
+    var group = panelsEl.querySelectorAll('input[data-s="' + sid + '"][data-i="' + iid + '"]');
+    Array.prototype.forEach.call(group, function (inp) { inp.closest('.item').classList.toggle('on', inp.checked); });
+    update(sid);
+  });
+
+  document.getElementById('clear').addEventListener('click', function () {
+    S.forEach(function (d) { states[d.id] = {}; touched[d.id] = false; });
+    Array.prototype.forEach.call(panelsEl.querySelectorAll('input'), function (inp) { inp.checked = false; });
+    Array.prototype.forEach.call(panelsEl.querySelectorAll('.item.on'), function (el) { el.classList.remove('on'); });
+    S.forEach(function (d) { update(d.id); });
+    document.getElementById('copymsg').textContent = '';
+  });
+
+  // カルテ用コピー：入力のあったスコアだけをまとめる
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+  document.getElementById('copy').addEventListener('click', function () {
+    var msg = document.getElementById('copymsg');
+    var text = A.summaryText(states, touched);
+    if (!text) { msg.textContent = 'まだ入力がありません'; return; }
+    function done(ok) { msg.textContent = ok ? 'コピーしました' : 'コピーできませんでした'; }
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallbackCopy(text)); });
+    } else {
+      done(fallbackCopy(text));
+    }
+  });
+
+  S.forEach(function (d) { update(d.id); });
+  show(active);
+})();
+</script>
+</body>
+</html>
