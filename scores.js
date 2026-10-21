@@ -29,7 +29,21 @@
         '初回けいれんが40分未満の AESD は解析に含まれていない。'
       ],
       cite: 'Ichinose F, Nakamura T, Kira R, et al. Incidence and risk factors of acute encephalopathy with biphasic seizures in febrile status epilepticus. Brain Dev. 2022;44(1):36-43.',
-      pmid: '34362595'
+      pmid: '34362595',
+      // 原著の項目と配点（原著の並び順）。abbr は計算結果の該当項目と照合するための札
+      table: {
+        src: 'Ichinose 2022・抄録／Table 3',
+        head: '点',
+        rows: [
+          { label: 'HCO₃⁻ < 20 mmol/L', pt: 1, abbr: 'HCO3<20' },
+          { label: 'Cl < 100 mEq/L', pt: 1, abbr: 'Cl<100' },
+          { label: 'Cr ≥ 0.35 mg/dL', pt: 1, abbr: 'Cr≥0.35' },
+          { label: '血糖 ≥ 200 mg/dL', pt: 1, abbr: '血糖≥200' },
+          { label: 'プロカルシトニン ≥ 1.7 ng/mL', pt: 2, abbr: 'PCT≥1.7' }
+        ],
+        note: 'すべて初回検査（初診時）の値',
+        foot: '合計 6点。3点以上で AESD を予測（感度 84.2%・特異度 81.0%）'
+      }
     },
     {
       id: 'nagase',
@@ -54,7 +68,17 @@
         '一ノ瀬ら（2025）は「重症熱性けいれん基準（Nagase 基準）」として紹介し、全身モニタリングや集中治療を選ぶ目安として有用としている。'
       ],
       cite: 'Nagase H, Nakagawa T, Aoki K, et al. Therapeutic indicators of acute encephalopathy in patients with complex febrile seizures. Pediatr Int. 2013;55(3):310-314.',
-      pmid: '23279186'
+      pmid: '23279186',
+      table: {
+        src: 'Nagase 2013・Table 4',
+        head: '該当',
+        rows: [
+          { label: '難治性けいれん重積（60分を超え、第一選択薬が効かない）', pt: 1, abbr: 'RSE' },
+          { label: '発症6時間の時点での意識障害（GCS ≤ 14）または片麻痺', pt: 1, abbr: '6h意識障害/片麻痺' },
+          { label: '発症6時間以内の AST > 90 IU/L', pt: 1, abbr: 'AST>90' }
+        ],
+        foot: 'いずれか1項目以上で神経学的予後不良を予測（感度 94.1%・特異度 69.6%）'
+      }
     },
     {
       id: 'yokochi',
@@ -77,7 +101,21 @@
         'AESD 以外の急性脳症・脳炎8例に当てはめたときの感度は 62%（5/8）。'
       ],
       cite: 'Yokochi T, Takeuchi T, Mukai J, et al. Prediction of acute encephalopathy with biphasic seizures and late reduced diffusion in patients with febrile status epilepticus. Brain Dev. 2016;38(2):217-224.',
-      pmid: '26242200'
+      pmid: '26242200',
+      table: {
+        src: 'Yokochi 2016・Table 4',
+        head: '点',
+        rows: [
+          { label: 'pH < 7.014', pt: 1, abbr: 'pH<7.014' },
+          { label: 'ALT ≥ 28 IU/L', pt: 2, abbr: 'ALT≥28' },
+          { label: '血糖 ≥ 228 mg/dL', pt: 2, abbr: '血糖≥228' },
+          { label: '覚醒までの時間 ≥ 11時間', pt: 2, abbr: '覚醒≥11h' },
+          { label: 'Cr ≥ 0.3 mg/dL', pt: 1, abbr: 'Cr≥0.3' },
+          { label: 'NH₃ ≥ 125 μg/dL', pt: 2, abbr: 'NH3≥125' }
+        ],
+        note: '検査値は来院時の値。覚醒までの時間は最後の抗けいれん薬投与から GCS > 14 になるまで',
+        foot: '合計 10点。4点以上で AESD を予測（感度 93%・特異度 91%）'
+      }
     },
     {
       id: 'tada',
@@ -101,7 +139,28 @@
         'AST の単位は原著では mEq/l と書かれている。ここでは IU/L で表示している。'
       ],
       cite: 'Tada H, Takanashi J, Okuno H, et al. Predictive score for early diagnosis of acute encephalopathy with biphasic seizures and late reduced diffusion (AESD). J Neurol Sci. 2015;358(1-2):62-65.',
-      pmid: '26333951'
+      pmid: '26333951',
+      table: {
+        src: 'Tada 2015・Table 4',
+        head: '点',
+        rows: [
+          {
+            label: 'けいれん後 12〜24時間の意識レベル',
+            options: [
+              { label: 'GCS 15（JCS 0）', pt: 0, abbr: '意識GCS15' },
+              { label: 'GCS 14〜9（JCS 1〜30）', pt: 2, abbr: '意識GCS9-14' },
+              { label: 'GCS 8〜3（JCS 100〜300）', pt: 3, abbr: '意識GCS≤8' }
+            ]
+          },
+          { label: '年齢 1.5歳未満', pt: 1, abbr: '1.5歳未満' },
+          { label: 'けいれん持続 > 40分', pt: 1, abbr: 'けいれん>40分' },
+          { label: '人工呼吸（気管挿管）', pt: 1, abbr: '人工呼吸' },
+          { label: 'AST（入院時）> 40 IU/L', pt: 1, abbr: 'AST>40' },
+          { label: '血糖（入院時）> 200 mg/dL', pt: 1, abbr: '血糖>200' },
+          { label: 'Cr（入院時）> 0.35 mg/dL', pt: 1, abbr: 'Cr>0.35' }
+        ],
+        foot: '合計 9点。4点以上で AESD を示唆（感度 88.7%・特異度 90%）'
+      }
     }
   ];
 

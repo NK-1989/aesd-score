@@ -158,4 +158,36 @@ t('カルテ用コピー：4スコアを1行ずつ', () => {
   ].join('\n'));
 });
 
+t('原著の項目と配点の表が、計算に使う定義と一致', () => {
+  for (const d of A.SCORES) {
+    // 計算側：このスコアに入る [札, 点] をすべて取り出す
+    const calc = [];
+    for (const f of A.FIELDS) {
+      if (f.type === 'level') f.levels.forEach(l => { if (l.score === d.id) calc.push([l.abbr, l.pt]); });
+      else if (f.score !== d.id) continue;
+      else if (f.type === 'choice') f.options.forEach(o => calc.push([o.abbr, o.pt]));
+      else calc.push([f.abbr, f.pt]);
+    }
+    // 表側：2択の「該当しない」側（Nagase の「なし」、Yokochi の「11時間未満」）は原著の表に行がないので除く
+    const table = [];
+    let max = 0;
+    for (const r of d.table.rows) {
+      if (r.options) { r.options.forEach(o => table.push([o.abbr, o.pt])); max += Math.max(...r.options.map(o => o.pt)); }
+      else { table.push([r.abbr, r.pt]); max += r.pt; }
+    }
+    const calcScored = calc.filter(([abbr]) => !['6h意識障害/片麻痺なし', '覚醒<11h'].includes(abbr));
+    assert.deepStrictEqual(table.slice().sort(), calcScored.slice().sort(), d.id);
+    assert.strictEqual(max, d.max, d.id + ' 表の満点');
+    assert.ok(d.table.foot.includes(d.cutoff + (d.id === 'nagase' ? '項目以上' : '点以上')), d.id + ' foot');
+  }
+});
+
+t('原著の表の並び順（原著の Table と同じ）', () => {
+  const order = id => S(id).table.rows.map(r => r.abbr || r.options.map(o => o.abbr).join('|'));
+  assert.deepStrictEqual(order('ichinose'), ['HCO3<20', 'Cl<100', 'Cr≥0.35', '血糖≥200', 'PCT≥1.7']);
+  assert.deepStrictEqual(order('nagase'), ['RSE', '6h意識障害/片麻痺', 'AST>90']);
+  assert.deepStrictEqual(order('yokochi'), ['pH<7.014', 'ALT≥28', '血糖≥228', '覚醒≥11h', 'Cr≥0.3', 'NH3≥125']);
+  assert.deepStrictEqual(order('tada'), ['意識GCS15|意識GCS9-14|意識GCS≤8', '1.5歳未満', 'けいれん>40分', '人工呼吸', 'AST>40', '血糖>200', 'Cr>0.35']);
+});
+
 console.log('\n' + n + ' tests passed');
