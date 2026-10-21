@@ -81,9 +81,8 @@ t('ほかのスコアの項目は数えない', () => {
   assert.strictEqual(run('tada', st).total, 4);
 });
 
-t('何も入力しなければ未入力扱い・コピーは空', () => {
+t('何も入力しなければ未入力扱い', () => {
   assert.strictEqual(A.started({}), false);
-  assert.strictEqual(A.summaryText({}), '');
   assert.strictEqual(A.started({ age: false, cr: 0 }), false);
   assert.strictEqual(A.started({ loc6: 0 }), true);  // 「なし」を選んだのは入力あり
 });
@@ -134,7 +133,7 @@ t('Tada：意識レベルしだいで4点に届くときだけ保留', () => {
   assert.strictEqual(run('tada', { age: true, dur: true, mv: true, ast40: true }).status, 'pos');
 });
 
-t('0点の選択肢を選んだときも記録に残る', () => {
+t('0点の選択肢を選んだときも該当に残る（原著の表で選んだ段に印を付けるため）', () => {
   const r = run('tada', { loc12: 0 });
   assert.deepStrictEqual(r.hits.map(h => h.abbr), ['意識GCS15']);
   assert.strictEqual(r.pending.length, 0);
@@ -145,17 +144,6 @@ t('判定の短い表記', () => {
   assert.strictEqual(A.judge(S('ichinose'), run('ichinose', {})).chip, '3点未満');
   assert.strictEqual(A.judge(S('nagase'), run('nagase', { loc6: 0 })).chip, '該当なし');
   assert.strictEqual(A.judge(S('tada'), run('tada', { age: true })).chip, '判定保留');
-});
-
-t('カルテ用コピー：4スコアを1行ずつ', () => {
-  const st = { cr: 3, pct: true, alt: true, age: true, loc6: 0 };
-  assert.strictEqual(A.summaryText(st, new Date(2026, 9, 21, 9, 5)), [
-    'AESD予測スコア（2026/10/21 09:05）',
-    '・Ichinose 3/6点：3点以上［Cr≥0.35、PCT≥1.7］',
-    '・Nagase 0/3項目：該当なし［6h意識障害/片麻痺なし］',
-    '・Yokochi 3/10点：判定保留（覚醒までの時間 未評価）［Cr≥0.3、ALT≥28］',
-    '・Tada 2/9点：判定保留（12〜24時間の意識レベル 未評価）［1.5歳未満、Cr>0.35］'
-  ].join('\n'));
 });
 
 t('原著の項目と配点の表が、計算に使う定義と一致', () => {

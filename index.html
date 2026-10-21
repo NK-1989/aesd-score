@@ -122,7 +122,6 @@ main{max-width:760px;margin:0 auto;padding:10px 16px 0}
 .results .part-h{margin-bottom:12px}
 .results .pill{background:#fff}
 .results .rcard{border-color:#dde3e7}
-.results .copy{background:#fff}
 .rgrid{display:grid;gap:10px}
 @media (min-width:700px){.rgrid{grid-template-columns:1fr 1fr}}
 .rcard{scroll-margin-top:140px;border:1px solid var(--line);border-radius:14px;padding:10px 12px 8px;background:#fff}
@@ -161,10 +160,6 @@ details li + li{margin-top:3px}
 .cite{margin-top:8px;color:var(--sub);font-size:12px;line-height:1.55}
 a{color:#3f6f86}
 
-.copyrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
-.copy{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:7px 16px;font-size:14px;font-weight:700;cursor:pointer}
-.copy:hover{background:#eef1f3}
-.copymsg{font-size:13px;color:var(--sub)}
 
 footer{max-width:760px;margin:0 auto;padding:16px 16px 32px;font-size:12px;color:var(--sub);line-height:1.65}
 footer h3{font-size:13px;color:var(--ink);margin:12px 0 4px}
@@ -182,7 +177,7 @@ footer .must{color:var(--ink);font-size:13px;background:var(--soft);border-radiu
 <header class="top">
   <div class="ttl">
     <h1>AESD 早期予測スコア<span>けいれん重積型（二相性）急性脳症</span></h1>
-    <span class="ver">v0.4</span>
+    <span class="ver">v0.5</span>
     <button type="button" class="clr" id="clear">クリア</button>
   </div>
   <nav class="sum" id="sum" aria-label="4つのスコアの結果"></nav>
@@ -200,10 +195,6 @@ footer .must{color:var(--ink);font-size:13px;background:var(--soft);border-radiu
   <div class="results-in">
     <div class="part-h"><span class="pill">結果</span><h2 id="rh">判定の詳細</h2><small>4スコアの判定と、原著の項目・配点</small></div>
     <div class="rgrid" id="rgrid"></div>
-    <div class="copyrow">
-      <button type="button" class="copy" id="copy">カルテ用にコピー</button>
-      <span class="copymsg" id="copymsg" role="status" aria-live="polite"></span>
-    </div>
   </div>
 </section>
 
@@ -226,7 +217,7 @@ footer .must{color:var(--ink);font-size:13px;background:var(--soft);border-radiu
   </ol>
 </footer>
 
-<script src="scores.js?v=5"></script>
+<script src="scores.js?v=6"></script>
 <script>
 (function () {
   'use strict';
@@ -363,7 +354,6 @@ footer .must{color:var(--ink);font-size:13px;background:var(--soft);border-radiu
         tr.querySelector('.ck').textContent = on ? '✓' : '';
       });
     });
-    $('copymsg').textContent = '';
   }
 
   // ---- 操作 ----
@@ -394,32 +384,6 @@ footer .must{color:var(--ink);font-size:13px;background:var(--soft);border-radiu
     state = {};
     update();
     window.scrollTo(0, 0);
-  });
-
-  // カルテ用コピー
-  function fallbackCopy(text) {
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.setAttribute('readonly', '');
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    var ok = false;
-    try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
-    document.body.removeChild(ta);
-    return ok;
-  }
-  $('copy').addEventListener('click', function () {
-    var msg = $('copymsg');
-    var text = A.summaryText(state);
-    if (!text) { msg.textContent = 'まだ入力がありません'; return; }
-    function done(ok) { msg.textContent = ok ? 'コピーしました' : 'コピーできませんでした'; }
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallbackCopy(text)); });
-    } else {
-      done(fallbackCopy(text));
-    }
   });
 
   update();

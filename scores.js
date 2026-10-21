@@ -329,28 +329,9 @@
     return { cls: 'neg', chip: c + '未満', main: 'カットオフ（' + c + '）未満', sub: '低スコアでも AESD は否定できない' };
   }
 
-  // カルテ用コピーの1スコア分（例：「Ichinose 3/6点：3点以上［Cr≥0.35、PCT≥1.7］」）
-  function summaryLine(def, r) {
-    let j;
-    if (r.status === 'pending') j = '判定保留（' + r.pending.join('・') + ' 未評価）';
-    else if (r.status === 'pos') j = def.cutoff + def.unit + '以上' + (def.id === 'nagase' ? '（SFS該当）' : '');
-    else j = def.id === 'nagase' ? '該当なし' : def.cutoff + def.unit + '未満';
-    const hit = r.hits.length ? '［' + r.hits.map(h => h.abbr).join('、') + '］' : '';
-    return def.short + ' ' + r.total + '/' + def.max + def.unit + '：' + j + hit;
-  }
-
-  function pad(n) { return (n < 10 ? '0' : '') + n; }
-
-  function summaryText(state, now) {
-    if (!started(state)) return '';
-    const d = now || new Date();
-    const stamp = d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
-    return ['AESD予測スコア（' + stamp + '）'].concat(SCORES.map(def => '・' + summaryLine(def, compute(def, state)))).join('\n');
-  }
-
   return {
     SCORES: SCORES, SECTIONS: SECTIONS, FIELDS: FIELDS,
     byId: byId, itemsOf: itemsOf, started: started, compute: compute,
-    judge: judge, summaryLine: summaryLine, summaryText: summaryText
+    judge: judge
   };
 });
