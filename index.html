@@ -15,6 +15,7 @@
   --sub:#66727a;
   --line:#e3e7ea;
   --soft:#f6f8f9;
+  --band:#f1f4f6;                        /* 判定の詳細の帯 */
   --ichinose:#437360; --ichinose-bg:#eef5f1;   /* セージ */
   --nagase:#3f6f86;   --nagase-bg:#edf4f7;     /* ブルーグレー */
   --yokochi:#655a88;  --yokochi-bg:#f3f1f8;    /* くすみラベンダー */
@@ -109,8 +110,19 @@ main{max-width:760px;margin:0 auto;padding:10px 16px 0}
 .lv.on .tag{background:#fff}
 
 /* 判定の詳細 */
-.results{margin-top:26px;border-top:1px solid var(--line);padding-top:14px}
-.results > h2{font-size:16px;font-weight:700;margin-bottom:10px}
+/* 入力と結果の見出し（対になる形） */
+.part-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.part-h h2{font-size:18px;font-weight:700;line-height:1.3}
+.part-h small{font-size:12.5px;color:var(--sub)}
+.pill{align-self:center;flex:none;font-size:12px;font-weight:700;line-height:1.6;color:var(--sub);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:0 10px}
+.part-end{margin-top:22px;text-align:center;font-size:12px;color:var(--sub);display:flex;align-items:center;gap:10px}
+.part-end::before,.part-end::after{content:"";flex:1;border-top:1px dashed #cfd6db}
+.results{margin-top:12px;background:var(--band);border-top:1px solid #dde3e7;border-bottom:1px solid #dde3e7;padding:18px 16px 22px}
+.results-in{max-width:728px;margin:0 auto}
+.results .part-h{margin-bottom:12px}
+.results .pill{background:#fff}
+.results .rcard{border-color:#dde3e7}
+.results .copy{background:#fff}
 .rgrid{display:grid;gap:10px}
 @media (min-width:700px){.rgrid{grid-template-columns:1fr 1fr}}
 .rcard{scroll-margin-top:140px;border:1px solid var(--line);border-radius:14px;padding:10px 12px 8px;background:#fff}
@@ -154,7 +166,7 @@ a{color:#3f6f86}
 .copy:hover{background:#eef1f3}
 .copymsg{font-size:13px;color:var(--sub)}
 
-footer{max-width:760px;margin:16px auto 0;padding:12px 16px 32px;font-size:12px;color:var(--sub);line-height:1.65;border-top:1px solid var(--line)}
+footer{max-width:760px;margin:0 auto;padding:16px 16px 32px;font-size:12px;color:var(--sub);line-height:1.65}
 footer h3{font-size:13px;color:var(--ink);margin:12px 0 4px}
 footer ul,footer ol{padding-left:1.3em}
 footer .must{color:var(--ink);font-size:13px;background:var(--soft);border-radius:12px;padding:9px 12px}
@@ -170,25 +182,30 @@ footer .must{color:var(--ink);font-size:13px;background:var(--soft);border-radiu
 <header class="top">
   <div class="ttl">
     <h1>AESD 早期予測スコア<span>けいれん重積型（二相性）急性脳症</span></h1>
-    <span class="ver">v0.3</span>
+    <span class="ver">v0.4</span>
     <button type="button" class="clr" id="clear">クリア</button>
   </div>
   <nav class="sum" id="sum" aria-label="4つのスコアの結果"></nav>
 </header>
 
-<main>
+<main aria-labelledby="ih">
+  <div class="part-h"><span class="pill">入力</span><h2 id="ih">評価項目のチェック</h2></div>
   <p class="lead">該当する項目をタップします。右端の色札は、その項目が入るスコアと点数です。チェックしない項目は非該当（0点）として数えます。</p>
   <div id="form"></div>
+  <p class="part-end">評価項目はここまで。下は判定の詳細です</p>
+</main>
 
-  <section class="results" aria-labelledby="rh">
-    <h2 id="rh">判定の詳細</h2>
+<!-- 判定の詳細：入力部分と区別するため、画面幅いっぱいの淡いグレーの帯にのせる -->
+<section class="results" aria-labelledby="rh">
+  <div class="results-in">
+    <div class="part-h"><span class="pill">結果</span><h2 id="rh">判定の詳細</h2><small>4スコアの判定と、原著の項目・配点</small></div>
     <div class="rgrid" id="rgrid"></div>
     <div class="copyrow">
       <button type="button" class="copy" id="copy">カルテ用にコピー</button>
       <span class="copymsg" id="copymsg" role="status" aria-live="polite"></span>
     </div>
-  </section>
-</main>
+  </div>
+</section>
 
 <footer>
   <p class="must">論文で提案された予測スコアを数えるための補助ツールです。AESD の診断基準ではなく、スコアだけで診断や治療を決めないでください。</p>
