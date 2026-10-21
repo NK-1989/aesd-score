@@ -24,6 +24,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%;background:#fff}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
 body{background:#fff;color:var(--ink);
   font-family:"BIZ UDPGothic","BIZ UDゴシック","Hiragino Sans","Hiragino Kaku Gothic ProN","Meiryo",system-ui,sans-serif;
   line-height:1.5;font-size:15px}
@@ -32,38 +33,46 @@ button{font:inherit;color:inherit}
 .c-nagase{--c:var(--nagase);--c-bg:var(--nagase-bg)}
 .c-yokochi{--c:var(--yokochi);--c-bg:var(--yokochi-bg)}
 .c-tada{--c:var(--tada);--c-bg:var(--tada-bg)}
+:focus-visible{outline:3px solid #b9d3e0;outline-offset:1px}
 
-/* 上部固定：タイトルとスコアの切り替え */
+/* 上部固定：タイトルと4スコアの結果 */
 .top{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line);
-  padding:10px 16px 10px;padding-top:max(10px,env(safe-area-inset-top))}
+  padding:8px 16px 10px;padding-top:max(8px,env(safe-area-inset-top))}
 .ttl{display:flex;align-items:center;gap:8px;max-width:760px;margin:0 auto}
 .ttl h1{font-size:15px;font-weight:700;line-height:1.25}
 .ttl h1 span{display:block;font-size:12px;font-weight:400;color:var(--sub)}
 .ver{margin-left:auto;flex:none;font-size:12px;color:var(--sub)}
 .clr{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;font-size:13px;color:var(--sub);padding:3px 12px;cursor:pointer}
 .clr:hover{background:var(--soft)}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:760px;margin:8px auto 0}
-.tab{border:1px solid var(--line);background:#fff;border-radius:12px;padding:5px 2px 6px;text-align:center;cursor:pointer;min-width:0}
-.tab b{display:block;font-size:14px;line-height:1.3;color:var(--ink)}
-.tab small{display:block;font-size:11px;line-height:1.3;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tab .chip{display:inline-block;margin-top:3px;min-width:46px;font-size:12px;font-weight:700;line-height:1.5;border-radius:999px;padding:0 8px;background:var(--soft);color:var(--sub);font-variant-numeric:tabular-nums}
-.tab .chip.pos{background:var(--pos-bg);color:var(--pos)}
-.tab[aria-selected="true"]{background:var(--c-bg);border-color:var(--c)}
-.tab[aria-selected="true"] b{color:var(--c)}
-.tab[aria-selected="true"] .chip:not(.pos){background:#fff}
-.tab:focus-visible,.clr:focus-visible,.copy:focus-visible{outline:3px solid #b9d3e0;outline-offset:1px}
+.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:760px;margin:8px auto 0}
+.mini{display:block;min-width:0;text-decoration:none;color:inherit;text-align:center;border:1px solid var(--line);border-radius:12px;padding:4px 2px 5px;background:#fff}
+.mini .nm{display:block;font-size:12px;font-weight:700;line-height:1.3;color:var(--c)}
+.mini .vl{display:block;line-height:1.15;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mini .vl b{font-size:22px}
+.mini .vl small{font-size:12px;font-weight:700;color:var(--sub);margin-left:1px}
+.mini .st{display:block;font-size:11.5px;font-weight:700;line-height:1.35;color:var(--sub);white-space:nowrap}
+.mini.neg{background:var(--soft)}
+.mini.pos{background:var(--pos-bg);border-color:#e8c9ce}
+.mini.pos .st{color:var(--pos)}
+.mini.pending{background:var(--note-bg);border-color:#ecdfbf}
+.mini.pending .st{color:var(--note)}
+.mini.idle .vl b{color:#c3cad0}
 
-main{max-width:760px;margin:0 auto;padding:12px 16px 0}
-.panel h2{font-size:18px;font-weight:700;color:var(--c);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-.panel h2 small{font-size:12px;font-weight:400;color:var(--sub)}
-.meta{margin:6px 0 12px;background:var(--soft);border-radius:12px;padding:8px 12px;font-size:13px;display:grid;grid-template-columns:auto 1fr;gap:3px 10px}
-.meta dt{color:var(--sub);white-space:nowrap}
-.meta dd b{font-weight:700}
+main{max-width:760px;margin:0 auto;padding:10px 16px 0}
+.lead{font-size:13px;color:var(--sub);margin-bottom:4px}
+.sec{margin-top:18px}
+.sec > h2{font-size:15px;font-weight:700;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.sec > h2 .no{flex:none;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--soft);border:1px solid var(--line);font-size:12px;align-self:center}
+.sec > h2 small{font-size:12px;font-weight:400;color:var(--sub)}
+.sec > * + *{margin-top:8px}
 
-/* チェック項目 */
-.item{position:relative;display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;min-height:54px;
+/* 色札：どのスコアに何点入るか */
+.tag{flex:none;display:inline-block;font-size:12px;font-weight:700;line-height:1.6;color:var(--c);background:var(--c-bg);border-radius:999px;padding:0 9px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tag.zero{color:var(--sub);background:var(--soft)}
+
+/* チェック項目・選択肢 */
+.item{position:relative;display:flex;align-items:center;gap:12px;padding:10px 12px 10px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;min-height:52px;
   -webkit-tap-highlight-color:transparent;transition:background-color .12s,border-color .12s}
-.item + .item, .item + .choice, .choice + .item{margin-top:8px}
 .item input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
 .box{flex:none;width:24px;height:24px;border:2px solid #b8c1c7;border-radius:6px;display:grid;place-items:center;background:#fff;transition:background-color .12s,border-color .12s}
 .box::after{content:"";width:6px;height:11px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg);opacity:0}
@@ -72,72 +81,110 @@ main{max-width:760px;margin:0 auto;padding:12px 16px 0}
 .item.on{background:var(--c-bg);border-color:var(--c)}
 .item.on .box{background:var(--c);border-color:var(--c)}
 .item.on .box::after{opacity:1}
+.item.on .tag{background:#fff}
 .item input:focus-visible ~ .box{outline:3px solid #b9d3e0;outline-offset:2px}
-@media (hover:hover){.item:hover:not(.on){background:var(--soft)}}
+@media (hover:hover){.item:hover:not(.on),.lv:hover:not(.on){background:var(--soft)}}
 .txt{flex:1;min-width:0}
 .txt b{display:block;font-size:16px;font-weight:700;line-height:1.35}
 .txt small{display:block;font-size:12.5px;color:var(--sub);line-height:1.4;margin-top:1px}
-.pt{flex:none;font-size:14px;font-weight:700;color:var(--c);background:var(--c-bg);border-radius:999px;padding:1px 10px;font-variant-numeric:tabular-nums}
-.item.on .pt{background:#fff}
-.choice{border:1px solid var(--line);border-radius:14px;padding:10px 10px 10px}
-.choice legend{padding:0 6px;font-size:14px;font-weight:700;color:var(--c)}
-.choice .item{min-height:48px;padding:9px 12px}
+.choice{min-width:0;border:1px solid var(--line);border-radius:14px;padding:4px 10px 10px}
+.choice legend{padding:0 6px;font-size:14px;font-weight:700}
+.cnote{font-size:12.5px;color:var(--sub);line-height:1.4;margin:0 0 6px 6px}
+.choice .item{min-height:46px;padding:8px 10px 8px 12px}
+.choice .item + .item{margin-top:6px}
 
-/* 合計と判定：項目のすぐ下に固定 */
-.result{position:sticky;bottom:0;z-index:5;margin-top:12px;background:#fff;border-top:1px solid var(--line);
-  padding:10px 0 max(10px,env(safe-area-inset-bottom));display:flex;align-items:center;gap:14px}
-.sc{flex:none;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:84px;text-align:center}
-.sc b{font-size:40px;line-height:1;font-weight:700;color:var(--c)}
-.sc span{font-size:15px;color:var(--sub);font-weight:700;margin-left:2px}
-.judge{flex:1;min-width:0;border-radius:12px;padding:8px 12px;font-size:15px;font-weight:700;line-height:1.35;background:var(--soft);color:var(--sub)}
+/* 閾値の段（Cr・血糖） */
+.lvl{border:1px solid var(--line);border-radius:12px;padding:8px 10px 10px 14px}
+.lvl-h{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-bottom:7px}
+.lvl-h b{font-size:16px}
+.lvl-h small{font-size:12.5px;color:var(--sub)}
+.lvl-h .hint{margin-left:auto}
+.lvl-b{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.lv{min-width:0;border:1px solid var(--line);border-radius:10px;background:#fff;padding:6px 2px 7px;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;transition:background-color .12s,border-color .12s}
+.lv b{display:block;font-size:16px;line-height:1.35;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lv .tag{margin-top:2px}
+.lv.on{background:var(--c-bg);border-color:var(--c)}
+.lv.on b{color:var(--c)}
+.lv.on b::before{content:"✓ ";font-size:13px}
+.lv.on .tag{background:#fff}
+
+/* 判定の詳細 */
+.results{margin-top:26px;border-top:1px solid var(--line);padding-top:14px}
+.results > h2{font-size:16px;font-weight:700;margin-bottom:10px}
+.rgrid{display:grid;gap:10px}
+@media (min-width:700px){.rgrid{grid-template-columns:1fr 1fr}}
+.rcard{scroll-margin-top:140px;border:1px solid var(--line);border-radius:14px;padding:10px 12px 8px;background:#fff}
+.rc-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.rc-h h3{font-size:16px;font-weight:700;color:var(--c)}
+.rc-h small{font-size:12px;color:var(--sub)}
+.rc-m{display:flex;align-items:center;gap:12px;margin-top:6px}
+.sc{flex:none;min-width:74px;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sc b{font-size:34px;line-height:1;font-weight:700;color:var(--c)}
+.sc span{font-size:14px;color:var(--sub);font-weight:700;margin-left:2px}
+.judge{flex:1;min-width:0;border-radius:12px;padding:7px 11px;font-size:14px;font-weight:700;line-height:1.35;background:var(--soft);color:var(--sub)}
 .judge small{display:block;font-weight:400;font-size:12px;margin-top:2px;color:var(--sub)}
 .judge.pos{background:var(--pos-bg);color:var(--pos)}
 .judge.pending{background:var(--note-bg);color:var(--note)}
-
-details{margin-top:4px;font-size:13px;border-top:1px solid var(--line);padding-top:6px}
-summary{cursor:pointer;color:var(--c);font-weight:700;padding:6px 0}
-details ul{padding-left:1.2em;color:var(--ink);line-height:1.65}
+.judge.idle{font-weight:400}
+.hits{margin-top:6px;font-size:12.5px;color:var(--sub)}
+.hits b{color:var(--ink);font-weight:700}
+.meta{margin-top:8px;background:var(--soft);border-radius:10px;padding:6px 10px;font-size:12.5px;display:grid;grid-template-columns:auto 1fr;gap:2px 10px}
+.meta dt{color:var(--sub);white-space:nowrap}
+details{margin-top:4px;font-size:13px}
+summary{cursor:pointer;color:var(--c);font-weight:700;padding:5px 0}
+details ul{padding-left:1.2em;line-height:1.65}
 details li + li{margin-top:3px}
 .cite{margin-top:8px;color:var(--sub);font-size:12px;line-height:1.55}
 a{color:#3f6f86}
 
-.copyrow{max-width:760px;margin:14px auto 0;padding:0 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.copyrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
 .copy{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:7px 16px;font-size:14px;font-weight:700;cursor:pointer}
 .copy:hover{background:#eef1f3}
 .copymsg{font-size:13px;color:var(--sub)}
 
-footer{max-width:760px;margin:12px auto 0;padding:12px 16px 32px;font-size:12px;color:var(--sub);line-height:1.65;border-top:1px solid var(--line)}
+footer{max-width:760px;margin:16px auto 0;padding:12px 16px 32px;font-size:12px;color:var(--sub);line-height:1.65;border-top:1px solid var(--line)}
 footer h3{font-size:13px;color:var(--ink);margin:12px 0 4px}
 footer ul,footer ol{padding-left:1.3em}
 footer .must{color:var(--ink);font-size:13px;background:var(--soft);border-radius:12px;padding:9px 12px}
-.judge.idle{font-weight:400}
-@media (max-width:359px){.tab b{font-size:13px}.tab small{font-size:10px}.sc{min-width:70px}.sc b{font-size:34px}}
+@media (max-width:359px){
+  .mini .nm{font-size:11px}.mini .vl b{font-size:20px}.mini .st{font-size:10.5px}
+  .lv b{font-size:15px}.tag{font-size:11px;padding:0 7px}
+  .item{gap:10px;padding-left:12px}
+  .lv .tag{padding:0 5px}
+}
 </style>
 </head>
 <body>
 <header class="top">
   <div class="ttl">
     <h1>AESD 早期予測スコア<span>けいれん重積型（二相性）急性脳症</span></h1>
-    <span class="ver">v0.1</span>
+    <span class="ver">v0.2</span>
     <button type="button" class="clr" id="clear">クリア</button>
   </div>
-  <nav class="tabs" id="tabs" role="tablist" aria-label="スコアの切り替え"></nav>
+  <nav class="sum" id="sum" aria-label="4つのスコアの結果"></nav>
 </header>
 
-<main id="panels"></main>
+<main>
+  <p class="lead">該当する項目をタップします。右端の色札は、その項目が入るスコアと点数です。チェックしない項目は非該当（0点）として数えます。</p>
+  <div id="form"></div>
 
-<div class="copyrow">
-  <button type="button" class="copy" id="copy">カルテ用にコピー</button>
-  <span class="copymsg" id="copymsg" role="status" aria-live="polite"></span>
-</div>
+  <section class="results" aria-labelledby="rh">
+    <h2 id="rh">判定の詳細</h2>
+    <div class="rgrid" id="rgrid"></div>
+    <div class="copyrow">
+      <button type="button" class="copy" id="copy">カルテ用にコピー</button>
+      <span class="copymsg" id="copymsg" role="status" aria-live="polite"></span>
+    </div>
+  </section>
+</main>
 
 <footer>
   <p class="must">論文で提案された予測スコアを数えるための補助ツールです。AESD の診断基準ではなく、スコアだけで診断や治療を決めないでください。</p>
   <h3>使うときの注意</h3>
   <ul>
     <li>未測定・未評価の項目は0点として数えます。そのぶんスコアは低めに出ます。</li>
+    <li>時点を決めて評価する項目（発症6時間の意識・片麻痺、覚醒までの時間、12〜24時間の意識レベル）が未選択で、その結果しだいで判定が変わるときは「判定保留」と表示します。</li>
     <li>AESD では1・2病日の MRI が正常のことが多く、二相目のけいれん（焦点発作の群発。眼瞼の発作や眼球偏位だけのこともある）や意識障害の悪化に気づかれにくいことがあります。スコアにかかわらず経過を観察してください（一ノ瀬ら 2025）。</li>
-    <li>タブは、判定に使える時期の早い順（初回採血 → 発症6時間 → 覚醒まで → 12〜24時間）に並べています。</li>
     <li>入力した内容は端末の中で計算するだけで、保存も送信もしません。</li>
   </ul>
   <h3>文献</h3>
@@ -150,134 +197,153 @@ footer .must{color:var(--ink);font-size:13px;background:var(--soft);border-radiu
   </ol>
 </footer>
 
-<script src="scores.js?v=2"></script>
+<script src="scores.js?v=4"></script>
 <script>
 (function () {
   'use strict';
   var A = window.AESD, S = A.SCORES;
-  var states = {}, touched = {}, active = S[0].id;
-  S.forEach(function (d) { states[d.id] = {}; });
-
-  var tabsEl = document.getElementById('tabs');
-  var panelsEl = document.getElementById('panels');
+  var state = {};
 
   function esc(s) {
     return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; });
   }
-  function ptLabel(p) { return p > 0 ? '+' + p : '0'; }
+  function $(id) { return document.getElementById(id); }
+  function each(sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }
+  function tag(scoreId, pt) {
+    if (!pt) return '<span class="tag zero">0</span>';
+    return '<span class="tag c-' + scoreId + '">' + esc(A.byId(scoreId).short) + ' +' + pt + '</span>';
+  }
 
-  function checkHTML(d, it) {
-    return '<label class="item"><input type="checkbox" data-s="' + d.id + '" data-i="' + it.id + '">' +
+  // ---- 入力欄 ----
+  function checkHTML(f) {
+    return '<label class="item c-' + f.score + '"><input type="checkbox" data-f="' + f.id + '">' +
       '<span class="box" aria-hidden="true"></span>' +
-      '<span class="txt"><b>' + esc(it.label) + '</b>' + (it.note ? '<small>' + esc(it.note) + '</small>' : '') + '</span>' +
-      '<span class="pt">' + ptLabel(it.pt) + '</span></label>';
+      '<span class="txt"><b>' + esc(f.label) + '</b>' + (f.note ? '<small>' + esc(f.note) + '</small>' : '') + '</span>' +
+      tag(f.score, f.pt) + '</label>';
   }
-  function choiceHTML(d, it) {
-    return '<fieldset class="choice"><legend>' + esc(it.label) + '</legend>' +
-      it.options.map(function (o, k) {
-        return '<label class="item radio"><input type="radio" name="' + d.id + '-' + it.id + '" value="' + k + '" data-s="' + d.id + '" data-i="' + it.id + '">' +
+  function levelHTML(f) {
+    return '<div class="lvl"><div class="lvl-h"><b>' + esc(f.label) + '</b><small>' + esc(f.unit) + '</small>' +
+      '<small class="hint">当てはまる最も右を押す（左も該当）</small></div>' +
+      '<div class="lvl-b" role="group" aria-label="' + esc(f.label) + '">' +
+      f.levels.map(function (l, i) {
+        return '<button type="button" class="lv c-' + l.score + '" data-f="' + f.id + '" data-k="' + (i + 1) + '" aria-pressed="false">' +
+          '<b>' + esc(l.th) + '</b>' + tag(l.score, l.pt) + '</button>';
+      }).join('') + '</div></div>';
+  }
+  function choiceHTML(f) {
+    return '<fieldset class="choice c-' + f.score + '"><legend>' + esc(f.label) + '</legend>' +
+      (f.note ? '<p class="cnote">' + esc(f.note) + '</p>' : '') + '<div>' +
+      f.options.map(function (o, k) {
+        return '<label class="item radio"><input type="radio" name="' + f.id + '" value="' + k + '" data-f="' + f.id + '">' +
           '<span class="box" aria-hidden="true"></span>' +
-          '<span class="txt"><b>' + esc(o.label) + '</b></span>' +
-          '<span class="pt">' + ptLabel(o.pt) + '</span></label>';
-      }).join('') + '</fieldset>';
+          '<span class="txt"><b>' + esc(o.label) + '</b>' + (o.note ? '<small>' + esc(o.note) + '</small>' : '') + '</span>' +
+          tag(f.score, o.pt) + '</label>';
+      }).join('') + '</div></fieldset>';
   }
 
-  // タブと画面を組み立てる
-  S.forEach(function (d) {
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'tab c-' + d.id;
-    b.id = 'tab-' + d.id;
-    b.setAttribute('role', 'tab');
-    b.setAttribute('aria-controls', 'p-' + d.id);
-    b.dataset.id = d.id;
-    b.innerHTML = '<b>' + esc(d.short) + '</b><small>' + esc(d.when) + '</small><span class="chip" id="chip-' + d.id + '">—</span>';
-    tabsEl.appendChild(b);
+  $('form').innerHTML = A.SECTIONS.map(function (s, i) {
+    return '<section class="sec" id="s-' + s.id + '"><h2><span class="no">' + (i + 1) + '</span>' + esc(s.title) +
+      (s.note ? '<small>' + esc(s.note) + '</small>' : '') + '</h2>' +
+      s.fields.map(function (f) {
+        return f.type === 'level' ? levelHTML(f) : f.type === 'choice' ? choiceHTML(f) : checkHTML(f);
+      }).join('') + '</section>';
+  }).join('');
 
-    var sec = document.createElement('section');
-    sec.className = 'panel c-' + d.id;
-    sec.id = 'p-' + d.id;
-    sec.setAttribute('role', 'tabpanel');
-    sec.setAttribute('aria-labelledby', 'tab-' + d.id);
-    sec.innerHTML =
-      '<h2>' + esc(d.name) + '<small>' + esc(d.short) + ' et al., ' + d.year + '</small></h2>' +
+  // ---- 上部の結果一覧と、判定の詳細 ----
+  $('sum').innerHTML = S.map(function (d) {
+    return '<a class="mini c-' + d.id + '" id="m-' + d.id + '" href="#r-' + d.id + '">' +
+      '<span class="nm">' + esc(d.short) + '</span>' +
+      '<span class="vl"><b id="mv-' + d.id + '">—</b><small>/' + d.max + '</small></span>' +
+      '<span class="st" id="ms-' + d.id + '">未入力</span></a>';
+  }).join('');
+
+  $('rgrid').innerHTML = S.map(function (d) {
+    return '<article class="rcard c-' + d.id + '" id="r-' + d.id + '">' +
+      '<div class="rc-h"><h3>' + esc(d.name) + '</h3><small>' + esc(d.short) + ' et al., ' + d.year + '</small></div>' +
+      '<div class="rc-m"><div class="sc"><b id="t-' + d.id + '">0</b><span>/ ' + d.max + d.unit + '</span></div>' +
+      '<p class="judge" id="j-' + d.id + '" aria-live="polite"></p></div>' +
+      '<p class="hits" id="h-' + d.id + '"></p>' +
       '<dl class="meta">' +
         '<dt>時期</dt><dd>' + esc(d.whenLong) + '</dd>' +
         '<dt>対象</dt><dd>' + esc(d.scope) + '</dd>' +
-        '<dt>予測</dt><dd><b>' + esc(d.predicts) + '</b></dd>' +
+        '<dt>予測</dt><dd>' + esc(d.predicts) + '</dd>' +
         '<dt>判定</dt><dd>' + esc(d.perf) + '</dd>' +
       '</dl>' +
-      '<div class="items">' + d.items.map(function (it) { return it.type === 'choice' ? choiceHTML(d, it) : checkHTML(d, it); }).join('') + '</div>' +
-      '<div class="result" aria-live="polite">' +
-        '<div class="sc"><b id="total-' + d.id + '">0</b><span>/ ' + d.max + d.unit + '</span></div>' +
-        '<p class="judge" id="judge-' + d.id + '"></p>' +
-      '</div>' +
       '<details><summary>原著の定義と注意</summary><ul>' +
         d.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') +
-      '</ul><p class="cite">' + esc(d.cite) + ' <a href="https://pubmed.ncbi.nlm.nih.gov/' + d.pmid + '/" target="_blank" rel="noopener">PMID: ' + d.pmid + '</a></p></details>';
-    panelsEl.appendChild(sec);
-  });
+      '</ul><p class="cite">' + esc(d.cite) + ' <a href="https://pubmed.ncbi.nlm.nih.gov/' + d.pmid + '/" target="_blank" rel="noopener">PMID: ' + d.pmid + '</a></p></details>' +
+      '</article>';
+  }).join('');
 
-  function update(id) {
-    var d = A.byId(id);
-    var r = A.compute(d, states[id]);
-    var j = A.judge(d, r);
-    document.getElementById('total-' + id).textContent = r.total;
-    var je = document.getElementById('judge-' + id);
-    if (!touched[id]) j = { cls: 'idle', main: '該当項目を選んでください', sub: '未測定・未評価の項目は0点' };
-    je.className = 'judge ' + j.cls;
-    je.innerHTML = esc(j.main) + '<small>' + esc(j.sub) + '</small>';
-    var chip = document.getElementById('chip-' + id);
-    chip.textContent = touched[id] ? r.total + '/' + d.max : '—';
-    chip.className = 'chip' + (touched[id] && r.status === 'pos' ? ' pos' : '');
-  }
-
-  function show(id, focus) {
-    active = id;
-    S.forEach(function (d) {
-      var on = d.id === id;
-      var t = document.getElementById('tab-' + d.id);
-      t.setAttribute('aria-selected', on ? 'true' : 'false');
-      t.tabIndex = on ? 0 : -1;
-      document.getElementById('p-' + d.id).hidden = !on;
+  // ---- 表示の更新 ----
+  function syncControls() {
+    each('input[type="checkbox"][data-f]', function (inp) {
+      inp.checked = state[inp.dataset.f] === true;
+      inp.closest('.item').classList.toggle('on', inp.checked);
     });
-    if (focus) document.getElementById('tab-' + id).focus();
-    window.scrollTo(0, 0);
+    each('input[type="radio"][data-f]', function (inp) {
+      inp.checked = state[inp.dataset.f] === Number(inp.value);
+      inp.closest('.item').classList.toggle('on', inp.checked);
+    });
+    each('.lv', function (b) {
+      var on = (state[b.dataset.f] || 0) >= Number(b.dataset.k);
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
   }
 
-  tabsEl.addEventListener('click', function (e) {
-    var t = e.target.closest('.tab');
-    if (t) show(t.dataset.id);
-  });
-  tabsEl.addEventListener('keydown', function (e) {
-    var i = S.findIndex(function (d) { return d.id === active; });
-    if (e.key === 'ArrowRight') i = (i + 1) % S.length;
-    else if (e.key === 'ArrowLeft') i = (i + S.length - 1) % S.length;
-    else return;
-    e.preventDefault();
-    show(S[i].id, true);
-  });
+  function update() {
+    syncControls();
+    var started = A.started(state);
+    S.forEach(function (d) {
+      var r = A.compute(d, state), j = A.judge(d, r);
+      if (!started) j = { cls: 'idle', chip: '未入力', main: '該当項目を選んでください', sub: '未測定・未評価の項目は0点' };
+      $('m-' + d.id).className = 'mini c-' + d.id + ' ' + j.cls;
+      $('mv-' + d.id).textContent = started ? r.total : '—';
+      $('ms-' + d.id).textContent = j.chip;
+      $('t-' + d.id).textContent = r.total;
+      var je = $('j-' + d.id);
+      je.className = 'judge ' + j.cls;
+      je.innerHTML = esc(j.main) + '<small>' + esc(j.sub) + '</small>';
+      var add = r.hits.filter(function (h) { return h.pt > 0; });
+      $('h-' + d.id).innerHTML = started
+        ? (add.length ? '加点：' + add.map(function (h) { return '<b>' + esc(h.abbr) + '</b> +' + h.pt; }).join('、') : '加点項目なし')
+        : '';
+    });
+    $('copymsg').textContent = '';
+  }
 
-  panelsEl.addEventListener('change', function (e) {
+  // ---- 操作 ----
+  var form = $('form');
+  form.addEventListener('change', function (e) {
     var t = e.target;
-    if (!t.dataset || !t.dataset.s) return;
-    var sid = t.dataset.s, iid = t.dataset.i;
-    states[sid][iid] = t.type === 'radio' ? Number(t.value) : t.checked;
-    touched[sid] = true;
-    var group = panelsEl.querySelectorAll('input[data-s="' + sid + '"][data-i="' + iid + '"]');
-    Array.prototype.forEach.call(group, function (inp) { inp.closest('.item').classList.toggle('on', inp.checked); });
-    update(sid);
+    if (t.type === 'checkbox' && t.dataset.f) { state[t.dataset.f] = t.checked; update(); }
+  });
+  // 選択肢：選び直し、または同じものをもう一度押すと未選択に戻す
+  form.addEventListener('click', function (e) {
+    var t = e.target;
+    if (t.tagName === 'INPUT' && t.type === 'radio') {
+      var v = Number(t.value);
+      if (state[t.dataset.f] === v) delete state[t.dataset.f];
+      else state[t.dataset.f] = v;
+      update();
+      return;
+    }
+    var b = t.closest('.lv');
+    if (b) {
+      var k = Number(b.dataset.k), cur = state[b.dataset.f] || 0;
+      state[b.dataset.f] = cur === k ? k - 1 : k;   // 同じ段をもう一度押すと1段下げる
+      update();
+    }
   });
 
-  document.getElementById('clear').addEventListener('click', function () {
-    S.forEach(function (d) { states[d.id] = {}; touched[d.id] = false; });
-    Array.prototype.forEach.call(panelsEl.querySelectorAll('input'), function (inp) { inp.checked = false; });
-    Array.prototype.forEach.call(panelsEl.querySelectorAll('.item.on'), function (el) { el.classList.remove('on'); });
-    S.forEach(function (d) { update(d.id); });
-    document.getElementById('copymsg').textContent = '';
+  $('clear').addEventListener('click', function () {
+    state = {};
+    update();
+    window.scrollTo(0, 0);
   });
 
-  // カルテ用コピー：入力のあったスコアだけをまとめる
+  // カルテ用コピー
   function fallbackCopy(text) {
     var ta = document.createElement('textarea');
     ta.value = text;
@@ -291,9 +357,9 @@ footer .must{color:var(--ink);font-size:13px;background:var(--soft);border-radiu
     document.body.removeChild(ta);
     return ok;
   }
-  document.getElementById('copy').addEventListener('click', function () {
-    var msg = document.getElementById('copymsg');
-    var text = A.summaryText(states, touched);
+  $('copy').addEventListener('click', function () {
+    var msg = $('copymsg');
+    var text = A.summaryText(state);
     if (!text) { msg.textContent = 'まだ入力がありません'; return; }
     function done(ok) { msg.textContent = ok ? 'コピーしました' : 'コピーできませんでした'; }
     if (navigator.clipboard && window.isSecureContext) {
@@ -303,8 +369,7 @@ footer .must{color:var(--ink);font-size:13px;background:var(--soft);border-radiu
     }
   });
 
-  S.forEach(function (d) { update(d.id); });
-  show(active);
+  update();
 })();
 </script>
 </body>
